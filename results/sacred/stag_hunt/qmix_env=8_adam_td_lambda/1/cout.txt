@@ -1,0 +1,158 @@
+[INFO 04:37:24] pymarl Running command 'my_main'
+[INFO 04:37:24] pymarl Started run with ID "1"
+[DEBUG 04:37:24] pymarl Starting Heartbeat
+[DEBUG 04:37:24] my_main Started
+[INFO 04:37:24] my_main Experiment Parameters:
+[INFO 04:37:24] my_main 
+
+{   'action_selector': 'epsilon_greedy',
+    'agent': 'n_rnn',
+    'agent_output_type': 'q',
+    'batch_size': 128,
+    'batch_size_run': 8,
+    'buffer_cpu_only': True,
+    'buffer_size': 1000,
+    'checkpoint_path': '',
+    'critic_lr': 0.0005,
+    'env': 'stag_hunt',
+    'env_args': {   'agent_move_block': [   0,
+                                            1,
+                                            2],
+                    'agent_obs': [   2,
+                                     2],
+                    'capture_action': True,
+                    'capture_action_conditions': [   2,
+                                                     1],
+                    'capture_conditions': [   0,
+                                              1],
+                    'capture_freezes': True,
+                    'capture_terminal': False,
+                    'directed_cone_narrow': True,
+                    'directed_exta_actions': True,
+                    'directed_observations': False,
+                    'episode_limit': 200,
+                    'intersection_global_view': False,
+                    'intersection_unknown': False,
+                    'map_name': 'stag_hunt',
+                    'miscapture_punishment': 0,
+                    'mountain_agent_row': -1,
+                    'mountain_slope': 0.0,
+                    'mountain_spawn': False,
+                    'n_agents': 8,
+                    'n_hare': 0,
+                    'n_stags': 8,
+                    'observe_ids': False,
+                    'observe_one_hot': False,
+                    'observe_state': False,
+                    'observe_walls': False,
+                    'p_hare_rest': 0.0,
+                    'p_stags_rest': 0.0,
+                    'prevent_cannibalism': True,
+                    'print_caught_prey': False,
+                    'print_frozen_agents': False,
+                    'random_ghosts': False,
+                    'random_ghosts_indicator': False,
+                    'random_ghosts_mul': -1,
+                    'random_ghosts_prob': 0.5,
+                    'remove_frozen': True,
+                    'reward_collision': 0,
+                    'reward_hare': 1,
+                    'reward_stag': 10,
+                    'reward_time': 0,
+                    'seed': 83090834,
+                    'state_as_graph': False,
+                    'toroidal': False,
+                    'world_shape': [   10,
+                                       10]},
+    'epsilon_anneal_time': 100000,
+    'epsilon_finish': 0.05,
+    'epsilon_start': 1.0,
+    'evaluate': False,
+    'gamma': 0.99,
+    'grad_norm_clip': 10,
+    'hypernet_embed': 64,
+    'label': 'default_label',
+    'learner': 'nq_learner',
+    'learner_log_interval': 10000,
+    'load_step': 0,
+    'local_results_path': 'results',
+    'log_interval': 10000,
+    'lr': 0.001,
+    'mac': 'n_mac',
+    'mixer': 'qmix',
+    'mixing_embed_dim': 32,
+    'name': 'qmix_env=8_adam_td_lambda',
+    'obs_agent_id': False,
+    'obs_last_action': True,
+    'optim_alpha': 0.99,
+    'optim_eps': 1e-05,
+    'optimizer': 'adam',
+    'q_lambda': False,
+    'repeat_id': 1,
+    'rnn_hidden_dim': 64,
+    'run': 'default',
+    'runner': 'parallel',
+    'runner_log_interval': 10000,
+    'save_model': False,
+    'save_model_interval': 2000000,
+    'save_replay': False,
+    'seed': 83090834,
+    't_max': 1050000,
+    'target_update_interval': 200,
+    'td_lambda': 0.5,
+    'test_greedy': True,
+    'test_interval': 10000,
+    'test_nepisode': 16,
+    'use_cuda': True,
+    'use_tensorboard': False}
+
+Mixer Size: 
+76.545K
+[INFO 04:37:29] my_main Beginning training for 1050000 timesteps
+/users/sgzliu45/Codes/pymarl2/src/components/episode_buffer.py:103: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:275.)
+  v = th.tensor(v, dtype=dtype, device=self.device)
+/users/sgzliu45/Codes/pymarl2/src/components/episode_buffer.py:103: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  v = th.tensor(v, dtype=dtype, device=self.device)
+[INFO 04:37:33] my_main t_env: 1600 / 1050000
+[INFO 04:37:33] my_main Estimated time left: 6 minutes, 4 seconds. Time passed: 4 seconds
+[INFO 04:38:05] my_main Recent Stats | t_env:      11200 | Episode:       56
+ep_length_mean:          200.0000	episode_limit_mean:        1.0000	epsilon:                   1.0000	return_mean:               7.5000
+return_std:                6.6144	test_ep_length_mean:     200.0000	test_episode_limit_mean:   1.0000	test_return_mean:          0.0000
+test_return_std:           0.0000	
+[INFO 04:38:09] my_main t_env: 12800 / 1050000
+[INFO 04:38:09] my_main Estimated time left: 55 minutes, 56 seconds. Time passed: 40 seconds
+[INFO 04:38:41] my_main Recent Stats | t_env:      22400 | Episode:      112
+ep_length_mean:          200.0000	episode_limit_mean:        1.0000	epsilon:                   0.8936	return_mean:               4.4643
+return_std:                5.6441	test_ep_length_mean:     200.0000	test_episode_limit_mean:   1.0000	test_return_mean:          0.0000
+test_return_std:           0.0000	
+[INFO 04:38:45] my_main t_env: 24000 / 1050000
+[INFO 04:38:45] my_main Estimated time left: 54 minutes, 58 seconds. Time passed: 1 minutes, 16 seconds
+[INFO 04:39:20] my_main Recent Stats | t_env:      33600 | Episode:      168
+ep_length_mean:          200.0000	episode_limit_mean:        1.0000	epsilon:                   0.7872	grad_norm:                 0.2402
+loss_td:                   0.2072	q_taken_mean:             -0.0160	return_mean:               6.6071	return_std:                6.0583
+target_mean:               0.0035	td_error_abs:              0.2072	test_ep_length_mean:     200.0000	test_episode_limit_mean:   1.0000
+test_return_mean:          0.0000	test_return_std:           0.0000	
+[INFO 04:39:24] my_main t_env: 35200 / 1050000
+[INFO 04:39:24] my_main Estimated time left: 59 minutes, 36 seconds. Time passed: 1 minutes, 55 seconds
+[INFO 04:39:48] my_main Updated target network
+[INFO 04:39:56] my_main Recent Stats | t_env:      44800 | Episode:      224
+ep_length_mean:          200.0000	episode_limit_mean:        1.0000	epsilon:                   0.6808	grad_norm:                 0.0170
+loss_td:                   0.2081	q_taken_mean:              0.0036	return_mean:               5.1786	return_std:                7.3171
+target_mean:               0.0036	td_error_abs:              0.2081	test_ep_length_mean:     200.0000	test_episode_limit_mean:   1.0000
+test_return_mean:         15.0000	test_return_std:           7.9057	
+[INFO 04:40:00] my_main t_env: 46400 / 1050000
+[INFO 04:40:00] my_main Estimated time left: 52 minutes, 59 seconds. Time passed: 2 minutes, 31 seconds
+[INFO 04:40:31] my_main Recent Stats | t_env:      55928 | Episode:      280
+ep_length_mean:          200.0000	episode_limit_mean:        1.0000	epsilon:                   0.5744	grad_norm:                 0.1085
+loss_td:                   0.3293	q_taken_mean:              0.0066	return_mean:              20.5357	return_std:                7.8875
+target_mean:               0.0157	td_error_abs:              0.3293	test_ep_length_mean:     200.0000	test_episode_limit_mean:   1.0000
+test_return_mean:         23.7500	test_return_std:           6.9597	
+[INFO 04:40:34] my_main t_env: 57504 / 1050000
+[INFO 04:40:34] my_main Estimated time left: 51 minutes, 24 seconds. Time passed: 3 minutes, 5 seconds
+[INFO 04:41:05] my_main Recent Stats | t_env:      66931 | Episode:      336
+ep_length_mean:          198.2857	episode_limit_mean:        0.9464	epsilon:                   0.4687	grad_norm:                 0.1276
+loss_td:                   0.3703	q_taken_mean:              0.0265	return_mean:              24.2857	return_std:                7.5255
+target_mean:               0.0170	td_error_abs:              0.3703	test_ep_length_mean:     200.0000	test_episode_limit_mean:   1.0000
+test_return_mean:         23.1250	test_return_std:           5.8296	
+[INFO 04:41:08] my_main t_env: 68531 / 1050000
+[INFO 04:41:08] my_main Estimated time left: 50 minutes, 35 seconds. Time passed: 3 minutes, 39 seconds

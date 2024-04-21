@@ -1,0 +1,108 @@
+{
+  "artifacts": [],
+  "command": "my_main",
+  "experiment": {
+    "base_dir": "/users/sgzliu45/Codes/pymarl2/src",
+    "dependencies": [
+      "munch==2.5.0",
+      "numpy==1.24.4",
+      "PyYAML==5.3.1",
+      "sacred==0.7.5",
+      "torch==2.2.2"
+    ],
+    "mainfile": "main.py",
+    "name": "pymarl",
+    "repositories": [],
+    "sources": [
+      [
+        "main.py",
+        "_sources/main_b3ff5451593b67cd33b9ec035b3b4842.py"
+      ],
+      [
+        "utils/logging.py",
+        "_sources/logging_ce9a261c391cbeae67129d3d806d06da.py"
+      ]
+    ]
+  },
+  "fail_trace": [
+    "Traceback (most recent call last):\n",
+    "  File \"/users/sgzliu45/miniconda3/envs/pymarl2/lib/python3.8/site-packages/sacred/config/captured_function.py\", line 48, in captured_function\n    result = wrapped(*args, **kwargs)\n",
+    "  File \"src/main.py\", line 38, in my_main\n    run_REGISTRY[_config['run']](_run, config, _log)\n",
+    "  File \"/users/sgzliu45/Codes/pymarl2/src/run/run.py\", line 54, in run\n    run_sequential(args=args, logger=logger)\n",
+    "  File \"/users/sgzliu45/Codes/pymarl2/src/run/run.py\", line 195, in run_sequential\n    learner.train(episode_sample, runner.t_env, episode)\n",
+    "  File \"/users/sgzliu45/Codes/pymarl2/src/learners/coma_learner.py\", line 80, in train\n    dist_entropy = Categorical(pi).entropy().view(-1)\n",
+    "  File \"/users/sgzliu45/miniconda3/envs/pymarl2/lib/python3.8/site-packages/torch/distributions/categorical.py\", line 70, in __init__\n    super().__init__(batch_shape, validate_args=validate_args)\n",
+    "  File \"/users/sgzliu45/miniconda3/envs/pymarl2/lib/python3.8/site-packages/torch/distributions/distribution.py\", line 68, in __init__\n    raise ValueError(\n",
+    "ValueError: Expected parameter probs (Tensor of shape (204800, 6)) of distribution Categorical(probs: torch.Size([204800, 6])) to satisfy the constraint Simplex(), but found invalid values:\ntensor([[0.1961, 0.1909, 0.2090, 0.2167, 0.1872, 0.0000],\n        [0.1909, 0.1960, 0.2034, 0.2166, 0.1930, 0.0000],\n        [0.0000, 0.1803, 0.1933, 0.2027, 0.1794, 0.2443],\n        ...,\n        [0.2095, 0.2035, 0.2007, 0.2093, 0.1771, 0.0000],\n        [0.3387, 0.0000, 0.0000, 0.3572, 0.3040, 0.0000],\n        [0.2053, 0.2029, 0.2027, 0.2113, 0.1779, 0.0000]], device='cuda:0',\n       grad_fn=<DivBackward0>)\n"
+  ],
+  "heartbeat": "2024-04-19T04:43:26.523064",
+  "host": {
+    "ENV": {},
+    "cpu": "Intel(R) Xeon(R) Gold 5218 CPU @ 2.30GHz",
+    "gpus": {
+      "driver_version": "550.54.14",
+      "gpus": [
+        {
+          "model": "Tesla V100-PCIE-16GB",
+          "persistence_mode": false,
+          "total_memory": 16384
+        },
+        {
+          "model": "Tesla V100-PCIE-16GB",
+          "persistence_mode": false,
+          "total_memory": 16384
+        },
+        {
+          "model": "Tesla V100-PCIE-16GB",
+          "persistence_mode": false,
+          "total_memory": 16384
+        },
+        {
+          "model": "Tesla V100-PCIE-16GB",
+          "persistence_mode": false,
+          "total_memory": 16384
+        }
+      ]
+    },
+    "hostname": "gpu04.pri.barkla.alces.network",
+    "os": [
+      "Linux",
+      "Linux-3.10.0-1160.90.1.el7.x86_64-x86_64-with-glibc2.17"
+    ],
+    "python_version": "3.8.19"
+  },
+  "meta": {
+    "command": "my_main",
+    "options": {
+      "--beat_interval": null,
+      "--capture": null,
+      "--comment": null,
+      "--debug": false,
+      "--enforce_clean": false,
+      "--file_storage": null,
+      "--force": false,
+      "--help": false,
+      "--loglevel": null,
+      "--mongo_db": null,
+      "--name": null,
+      "--pdb": false,
+      "--print_config": false,
+      "--priority": null,
+      "--queue": false,
+      "--sql": null,
+      "--tiny_db": null,
+      "--unobserved": false,
+      "COMMAND": null,
+      "UPDATE": [
+        "t_max=500000"
+      ],
+      "help": false,
+      "with": true
+    }
+  },
+  "resources": [],
+  "result": null,
+  "start_time": "2024-04-19T04:40:35.034707",
+  "status": "FAILED",
+  "stop_time": "2024-04-19T04:43:26.546525"
+}
