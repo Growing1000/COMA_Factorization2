@@ -38,4 +38,5 @@ save_model_interval: 10000
 
 name: "comavdn_env=8_adam_td_lambda_"
 
-
+save_model: True
+save_model_interval: 1000
