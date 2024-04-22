@@ -6,7 +6,7 @@ epsilon_finish: .01
 epsilon_anneal_time: 100000
 mask_before_softmax: True
 
-runner: "episode"
+runner: "parallel"
 
 buffer_size: 5000
 batch_size_run: 8
