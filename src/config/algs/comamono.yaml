@@ -25,11 +25,15 @@ entropy: 0.09
 
 # use COMA
 agent_output_type: "pi_logits"
-learner: "coma_learner"
+learner: "comafac_learner"
 critic_q_fn: "coma"
 critic_baseline_fn: "coma"
 critic_train_mode: "seq"
 critic_train_reps: 1
 q_nstep: 0  # 0 corresponds to default Q, 1 is r + gamma*Q, etc
+mixer: "qmix_nonmonotonic"
 
-name: "coma_env=8_adam_td_lambda"
+save_model: True
+save_model_interval: 10000
+
+name: "comamono_env=8_adam_td_lambda_"

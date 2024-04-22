@@ -7,7 +7,7 @@ test_interval: 1000
 log_interval: 1000
 runner_log_interval: 1000
 learner_log_interval: 1000
-t_max: 50000
+t_max: 500000
 
 obs_last_action: False
 
