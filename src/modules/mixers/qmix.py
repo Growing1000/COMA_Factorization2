@@ -13,7 +13,6 @@ class QMixer(nn.Module):
         self.state_dim = int(np.prod(args.state_shape))
 
         self.embed_dim = args.mixing_embed_dim
-        self.abs = getattr(self.args, 'abs', True)
 
         if getattr(args, "hypernet_layers", 1) == 1:
             self.hyper_w_1 = nn.Linear(self.state_dim, self.embed_dim * self.n_agents)
@@ -21,10 +20,10 @@ class QMixer(nn.Module):
         elif getattr(args, "hypernet_layers", 1) == 2:
             hypernet_embed = self.args.hypernet_embed
             self.hyper_w_1 = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                           nn.ReLU(inplace=True),
+                                           nn.ReLU(),
                                            nn.Linear(hypernet_embed, self.embed_dim * self.n_agents))
             self.hyper_w_final = nn.Sequential(nn.Linear(self.state_dim, hypernet_embed),
-                                           nn.ReLU(inplace=True),
+                                           nn.ReLU(),
                                            nn.Linear(hypernet_embed, self.embed_dim))
         elif getattr(args, "hypernet_layers", 1) > 2:
             raise Exception("Sorry >2 hypernet layers is not implemented!")
@@ -36,23 +35,41 @@ class QMixer(nn.Module):
 
         # V(s) instead of a bias for the last layers
         self.V = nn.Sequential(nn.Linear(self.state_dim, self.embed_dim),
-                               nn.ReLU(inplace=True),
+                               nn.ReLU(),
                                nn.Linear(self.embed_dim, 1))
-        
 
     def forward(self, agent_qs, states):
+
+        '''
+        print("======================================")
+        print("agent_qs", agent_qs)
+        print("agent_qs size", agent_qs.size())
+        print("state:", states)
+        print("state size:", states.size())
+        print("======================================")
+        '''
+
         bs = agent_qs.size(0)
         states = states.reshape(-1, self.state_dim)
-        agent_qs = agent_qs.reshape(-1, 1, self.n_agents)
+        agent_qs = agent_qs.view(-1, 1, self.n_agents)
+
+        '''
+        print("======================================")
+        print("agent_qs", agent_qs)
+        print("agent_qs size", agent_qs.size())
+        print("state:", states)
+        print("state size:", states.size())
+        print("======================================")
+        '''
+
         # First layer
-        w1 = self.hyper_w_1(states).abs() if self.abs else self.hyper_w_1(states)
+        w1 = th.abs(self.hyper_w_1(states))
         b1 = self.hyper_b_1(states)
         w1 = w1.view(-1, self.n_agents, self.embed_dim)
         b1 = b1.view(-1, 1, self.embed_dim)
         hidden = F.elu(th.bmm(agent_qs, w1) + b1)
-        
         # Second layer
-        w_final = self.hyper_w_final(states).abs() if self.abs else self.hyper_w_final(states)
+        w_final = th.abs(self.hyper_w_final(states))
         w_final = w_final.view(-1, self.embed_dim, 1)
         # State-dependent bias
         v = self.V(states).view(-1, 1, 1)
@@ -60,28 +77,7 @@ class QMixer(nn.Module):
         y = th.bmm(hidden, w_final) + v
         # Reshape and return
         q_tot = y.view(bs, -1, 1)
-        
         return q_tot
-
-    def k(self, states):
-        bs = states.size(0)
-        w1 = th.abs(self.hyper_w_1(states))
-        w_final = th.abs(self.hyper_w_final(states))
-        w1 = w1.view(-1, self.n_agents, self.embed_dim)
-        w_final = w_final.view(-1, self.embed_dim, 1)
-        k = th.bmm(w1,w_final).view(bs, -1, self.n_agents)
-        k = k / th.sum(k, dim=2, keepdim=True)
-        return k
-
-    def b(self, states):
-        bs = states.size(0)
-        w_final = th.abs(self.hyper_w_final(states))
-        w_final = w_final.view(-1, self.embed_dim, 1)
-        b1 = self.hyper_b_1(states)
-        b1 = b1.view(-1, 1, self.embed_dim)
-        v = self.V(states).view(-1, 1, 1)
-        b = th.bmm(b1, w_final) + v
-        return b
 
 
 
@@ -129,9 +125,11 @@ class QMixerNonmonotonic(nn.Module):
             self.gate = nn.Parameter(th.ones(size=(1,)) * 0.5)
 
     def forward(self, agent_qs, states):
+        
         bs = agent_qs.size(0)
         states = states.reshape(-1, self.state_dim)
         agent_qs = agent_qs.view(-1, 1, self.n_agents)
+
         # First layer
         w1 = self.hyper_w_1(states)
         b1 = self.hyper_b_1(states)
@@ -158,3 +156,6 @@ class QMixerNonmonotonic(nn.Module):
         q_tot = y.view(bs, -1, 1)
 
         return q_tot
+    
+
+    

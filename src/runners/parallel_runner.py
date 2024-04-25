@@ -18,11 +18,8 @@ class ParallelRunner:
         # Make subprocesses for the envs
         self.parent_conns, self.worker_conns = zip(*[Pipe() for _ in range(self.batch_size)])
         env_fn = env_REGISTRY[self.args.env]
-        self.ps = []
-        for i, worker_conn in enumerate(self.worker_conns):
-            ps = Process(target=env_worker, 
-                    args=(worker_conn, CloudpickleWrapper(partial(env_fn, **self.args.env_args))))
-            self.ps.append(ps)
+        self.ps = [Process(target=env_worker, args=(worker_conn, CloudpickleWrapper(partial(env_fn, **self.args.env_args))))
+                            for worker_conn in self.worker_conns]
 
         for p in self.ps:
             p.daemon = True
@@ -95,26 +92,18 @@ class ParallelRunner:
         terminated = [False for _ in range(self.batch_size)]
         envs_not_terminated = [b_idx for b_idx, termed in enumerate(terminated) if not termed]
         final_env_infos = []  # may store extra stats like battle won. this is filled in ORDER OF TERMINATION
-        
-        save_probs = getattr(self.args, "save_probs", False)
+
         while True:
 
             # Pass the entire batch of experiences up till now to the agents
             # Receive the actions for each agent at this timestep in a batch for each un-terminated env
-            if save_probs:
-                actions, probs = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, bs=envs_not_terminated, test_mode=test_mode)
-            else:
-                actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, bs=envs_not_terminated, test_mode=test_mode)
-                
+            actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, bs=envs_not_terminated, test_mode=test_mode)
             cpu_actions = actions.to("cpu").numpy()
 
             # Update the actions taken
             actions_chosen = {
-                "actions": actions.unsqueeze(1).to("cpu"),
+                "actions": actions.unsqueeze(1)
             }
-            if save_probs:
-                actions_chosen["probs"] = probs.unsqueeze(1).to("cpu")
-            
             self.batch.update(actions_chosen, bs=envs_not_terminated, ts=self.t, mark_filled=False)
 
             # Send actions to each env
@@ -193,7 +182,6 @@ class ParallelRunner:
         cur_returns = self.test_returns if test_mode else self.train_returns
         log_prefix = "test_" if test_mode else ""
         infos = [cur_stats] + final_env_infos
-
         cur_stats.update({k: sum(d.get(k, 0) for d in infos) for k in set.union(*[set(d) for d in infos])})
         cur_stats["n_episodes"] = self.batch_size + cur_stats.get("n_episodes", 0)
         cur_stats["ep_length"] = sum(episode_lengths) + cur_stats.get("ep_length", 0)

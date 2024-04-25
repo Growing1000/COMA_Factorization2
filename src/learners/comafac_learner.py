@@ -5,10 +5,13 @@ from utils.rl_utils import build_td_lambda_targets
 from torch.distributions import Categorical
 import torch as th
 from torch.optim import Adam
+from torch.optim import RMSprop
 
 from modules.mixers.vdn import VDNMixer
 from modules.mixers.qmix import QMixer, QMixerNonmonotonic
 
+import numpy as np
+import math
 
 
 class COMAFACLearner:
@@ -31,9 +34,14 @@ class COMAFACLearner:
         self.critic_params = list(self.critic.parameters())
         self.params = self.agent_params + self.critic_params
 
-        self.agent_optimiser = Adam(params=self.agent_params, lr=args.lr)
-        self.critic_optimiser = Adam(params=self.critic_params, lr=args.critic_lr)
-
+        '''
+        self.agent_optimiser = RMSprop(params=self.agent_params, lr=args.lr, alpha=args.optim_alpha, eps=args.optim_eps)
+        self.critic_optimiser = RMSprop(params=self.critic_params, lr=args.critic_lr, alpha=args.optim_alpha, eps=args.optim_eps)        
+        '''
+        self.agent_optimiser = RMSprop(params=self.agent_params, lr=args.lr, alpha=args.optim_alpha, eps=args.optim_eps)
+        self.critic_optimiser = RMSprop(params=self.critic_params, lr=args.critic_lr, alpha=args.optim_alpha, eps=args.optim_eps)
+        
+        # add mixer
         self.mixer = None
         if args.mixer is not None and self.args.n_agents > 1:  # if just 1 agent do not mix anything
             if args.mixer == "vdn":
@@ -46,6 +54,8 @@ class COMAFACLearner:
                 raise ValueError("Mixer {} not recognised.".format(args.mixer))
             self.critic_params += list(self.mixer.parameters())
             self.target_mixer = copy.deepcopy(self.mixer)
+
+
 
 
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
@@ -94,15 +104,10 @@ class COMAFACLearner:
         advantages = (q_taken - baseline).detach()
 
         coma_loss = - ((advantages * log_pi_taken) * mask).sum() / mask.sum()
-        
-        dist_entropy = Categorical(pi).entropy().view(-1)
-        dist_entropy[mask == 0] = 0 # fill nan
-        entropy_loss = (dist_entropy * mask).sum() / mask.sum()
 
         # Optimise agents
         self.agent_optimiser.zero_grad()
-        loss = coma_loss - self.args.entropy * entropy_loss
-        loss.backward()
+        coma_loss.backward()
         grad_norm = th.nn.utils.clip_grad_norm_(self.agent_params, self.args.grad_norm_clip)
         self.agent_optimiser.step()
 
@@ -145,13 +150,36 @@ class COMAFACLearner:
                 continue
 
             q_t = self.critic(batch, t)
+            #print("===================================================")
+            #print('reward size:', rewards.size())
+            #print('q_t size: ', q_t.size())
+
+            '''
+            print(' size: ', .size())
+            print(' size: ', .size())
+            print(' size: ', .size())
+            print(' size: ', .size())
+            '''
+
+            q_vals[:, t] = q_t.view(bs, self.n_agents, self.n_actions)
+
+            #print('qvals size: ', q_vals.size())
+            #print('qvals[:, t] size: ', q_vals[:,t].size())
 
             q_taken = th.gather(q_t, dim=3, index=actions[:, t:t+1]).squeeze(3).squeeze(1)
+            #print('q_taken size: ', q_taken.size())
+            
             targets_t = targets[:, t]
-
+            #print('targets size: ', targets.size())
+            #print('targets t size: ', targets_t.size())
+            #print('batch state size: ', batch["state"].size())
+            #print('batch state t size: ', batch["state"][:,t:t+1].size())
+            #print("===================================================")
+            
+            # add mixer          
             if self.mixer is not None:
-                q_taken = self.mixer(q_taken, batch["state"][:,:-1])
-                targets_t = self.mixer(targets_t, batch["state"][:,:-1])
+                q_taken = self.mixer(q_taken, batch["state"][:,t:t+1])
+                targets_t = self.mixer(targets_t, batch["state"][:,t:t+1])
 
 
             td_error = (q_taken - targets_t.detach())
@@ -181,13 +209,15 @@ class COMAFACLearner:
         
         if self.mixer is not None:
             self.target_mixer.load_state_dict(self.mixer.state_dict())
-
+        
         self.logger.console_logger.info("Updated target network")
 
     def cuda(self):
         self.mac.cuda()
         self.critic.cuda()
         self.target_critic.cuda()
+        
+        # add mixer
         if self.mixer is not None:
             self.mixer.cuda()
             self.target_mixer.cuda()
@@ -195,11 +225,6 @@ class COMAFACLearner:
     def save_models(self, path):
         self.mac.save_models(path)
         th.save(self.critic.state_dict(), "{}/critic.th".format(path))
-
-        if self.mixer is not None:
-            th.save(self.mixer.state_dict(), "{}/mixer.th".format(path))
-
-
         th.save(self.agent_optimiser.state_dict(), "{}/agent_opt.th".format(path))
         th.save(self.critic_optimiser.state_dict(), "{}/critic_opt.th".format(path))
 
@@ -208,9 +233,5 @@ class COMAFACLearner:
         self.critic.load_state_dict(th.load("{}/critic.th".format(path), map_location=lambda storage, loc: storage))
         # Not quite right but I don't want to save target networks
         self.target_critic.load_state_dict(self.critic.state_dict())
-
-        if self.mixer is not None:
-            self.mixer.load_state_dict(th.load("{}/mixer.th".format(path), map_location=lambda storage, loc: storage))
-
         self.agent_optimiser.load_state_dict(th.load("{}/agent_opt.th".format(path), map_location=lambda storage, loc: storage))
         self.critic_optimiser.load_state_dict(th.load("{}/critic_opt.th".format(path), map_location=lambda storage, loc: storage))
