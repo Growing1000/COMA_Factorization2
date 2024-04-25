@@ -126,12 +126,6 @@ class COMAFACLearner:
         target_q_vals = self.target_critic(batch)[:, :]
         targets_taken = th.gather(target_q_vals, dim=3, index=actions).squeeze(3)
 
-        #add mix
-        if self.mixer is not None:
-            targets_taken = self.mixer(targets_taken, batch["state"][:, :-1])
-
-
-
         # Calculate td-lambda targets
         targets = build_td_lambda_targets(rewards, terminated, mask, targets_taken, self.n_agents, self.args.gamma, self.args.td_lambda)
 
@@ -152,15 +146,12 @@ class COMAFACLearner:
 
             q_t = self.critic(batch, t)
 
-
-            #add mixer
-            if self.mixer is not None:
-                q_vals[:, t] = self.mixer(q_t.view(bs, self.n_agents, self.n_actions), batch["state"][:,:-1])
-                q_t = self.mixer(q_t.view(bs, self.n_agents, self.n_actions), batch["state"][:, :-1])
-            
-
             q_taken = th.gather(q_t, dim=3, index=actions[:, t:t+1]).squeeze(3).squeeze(1)
             targets_t = targets[:, t]
+
+            if self.mixer is not None:
+                q_taken = self.mixer(q_taken, batch["state"][:,:-1])
+                targets_t = self.mixer(targets_t, batch["state"][:,:-1])
 
 
             td_error = (q_taken - targets_t.detach())
